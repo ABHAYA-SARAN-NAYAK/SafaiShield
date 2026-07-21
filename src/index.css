@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────
+   SafaiShield Design System
+   Dark theme · High contrast · Glove-friendly
+   ────────────────────────────────────── */
+
+:root {
+  --color-danger:   #DC2626;
+  --color-warning:  #D97706;
+  --color-safe:     #16A34A;
+  --color-night:    #0F172A;
+  --color-surface:  #1E293B;
+  --color-border:   #334155;
+  --color-text:     #F1F5F9;
+  --color-muted:    #94A3B8;
+  --color-accent:   #3B82F6;
+  --color-orange:   #F97316;
+}
+
+/* ── Base ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-night);
+  color: var(--color-text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-night);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: var(--color-text);
+}
+
+/* ── Focus visible for accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Leaflet overrides for dark theme ── */
+.leaflet-container {
+  background: var(--color-surface) !important;
+  border-radius: 12px;
+}
+.leaflet-popup-content-wrapper {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-tip {
+  background: var(--color-surface) !important;
+}
+.leaflet-popup-close-button {
+  color: var(--color-muted) !important;
+}
+.leaflet-control-zoom a {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* ── Utility layers ── */
+@layer components {
+  /* Big CTA Button */
+  .btn-cta {
+    @apply w-full h-[60px] rounded-2xl font-semibold text-btn
+           flex items-center justify-center gap-3
+           transition-all duration-200 active:scale-[0.97]
+           focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-night;
+  }
+
+  .btn-cta-danger {
+    @apply btn-cta bg-danger text-white hover:bg-red-700;
+  }
+
+  .btn-cta-safe {
+    @apply btn-cta bg-safe text-white hover:bg-green-700;
+  }
+
+  .btn-cta-accent {
+    @apply btn-cta bg-accent text-white hover:bg-blue-700;
+  }
+
+  .btn-cta-warning {
+    @apply btn-cta bg-warning text-white hover:bg-amber-700;
+  }
+
+  .btn-cta-surface {
+    @apply btn-cta bg-surface text-text-primary border border-border-custom hover:bg-slate-700;
+  }
+
+  /* Card */
+  .card {
+    @apply bg-surface border border-border-custom rounded-2xl p-4 
+           transition-all duration-200;
+  }
+
+  .card-interactive {
+    @apply card cursor-pointer hover:border-accent/50 active:scale-[0.98];
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
+  }
+
+  .badge-danger {
+    @apply badge bg-danger/20 text-danger;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/20 text-warning;
+  }
+
+  .badge-safe {
+    @apply badge bg-safe/20 text-safe;
+  }
+
+  /* Page container */
+  .page {
+    @apply flex-1 px-4 pb-24 pt-4 animate-fade-in;
+  }
+
+  /* Section title */
+  .section-title {
+    @apply text-section text-text-primary mb-3;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full h-[52px] bg-night border border-border-custom rounded-xl px-4
+           text-text-primary placeholder:text-muted
+           focus:border-accent focus:ring-1 focus:ring-accent
+           transition-colors duration-200;
+  }
+
+  /* Radio / Checkbox option card */
+  .option-card {
+    @apply flex items-center gap-3 p-4 bg-night border border-border-custom rounded-xl
+           cursor-pointer transition-all duration-200
+           hover:border-accent/50;
+  }
+
+  .option-card.selected {
+    @apply border-accent bg-accent/10;
+  }
+
+  /* Step indicator */
+  .step-indicator {
+    @apply flex items-center gap-2 text-caption text-muted;
+  }
+}
+
+/* ── Animations ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-border) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Screen flash for emergency */
+.screen-flash {
+  animation: flashRed 0.5s ease-in-out infinite;
+}
+
+@keyframes flashRed {
+  0%, 100% { background-color: var(--color-night); }
+  50% { background-color: rgba(220, 38, 38, 0.3); }
+}
