@@ -8,10 +8,10 @@ import BigButton from '../components/shared/BigButton';
 import { apiCall } from '../lib/api';
 
 const DEMO_HYDERABAD_SITES = [
-  { id:'demo_sewer_1', siteType:'sewer', site_type:'sewer', latitude:17.3850, longitude:78.4867, riskLevel:'high', risk_level:'high', incidentCount:3, incident_count_30d:3, lastReported:'3 days ago', last_reported:'3 days ago', gear_provided:false, month_year:'2026-07' },
-  { id:'demo_septic_1', siteType:'septic', site_type:'septic_tank', latitude:17.4060, longitude:78.4710, riskLevel:'medium', risk_level:'medium', incidentCount:2, incident_count_30d:2, lastReported:'5 days ago', last_reported:'5 days ago', gear_provided:true, month_year:'2026-07' },
-  { id:'demo_ewaste_1', siteType:'ewaste', site_type:'ewaste_pit', latitude:17.3620, longitude:78.5020, riskLevel:'low', risk_level:'low', incidentCount:1, incident_count_30d:1, lastReported:'12 days ago', last_reported:'12 days ago', gear_provided:false, month_year:'2026-07' },
-  { id:'demo_sewer_2', siteType:'sewer', site_type:'sewer', latitude:17.4250, longitude:78.4520, riskLevel:'high', risk_level:'high', incidentCount:4, incident_count_30d:4, lastReported:'Today', last_reported:'Today', gear_provided:false, month_year:'2026-07' },
+  { id:'demo_sewer_1', siteType:'sewer', site_type:'sewer', latitude:17.3850, longitude:78.4867, riskLevel:'high', risk_level:'high', incidentCount:3, incident_count_30d:3, gear_provided:false, month_year:'2026-07' },
+  { id:'demo_septic_1', siteType:'septic', site_type:'septic_tank', latitude:17.4060, longitude:78.4710, riskLevel:'medium', risk_level:'medium', incidentCount:2, incident_count_30d:2, gear_provided:true, month_year:'2026-07' },
+  { id:'demo_ewaste_1', siteType:'ewaste', site_type:'ewaste_pit', latitude:17.3620, longitude:78.5020, riskLevel:'low', risk_level:'low', incidentCount:1, incident_count_30d:1, gear_provided:false, month_year:'2026-07' },
+  { id:'demo_sewer_2', siteType:'sewer', site_type:'sewer', latitude:17.4250, longitude:78.4520, riskLevel:'high', risk_level:'high', incidentCount:4, incident_count_30d:4, gear_provided:false, month_year:'2026-07' },
 ];
 
 function haversineDistanceKm(lat1, lon1, lat2, lon2) {

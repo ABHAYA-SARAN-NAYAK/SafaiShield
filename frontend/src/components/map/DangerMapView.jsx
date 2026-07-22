@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, CircleMarker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useWorker } from '../../context/WorkerContext';
 import { t } from '../../lib/i18n';
 import 'leaflet/dist/leaflet.css';
 
+// Fix Leaflet default icon URL issues in Vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -16,27 +17,14 @@ function RecenterMap({ center }) {
   const map = useMap();
   useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.setView(center, map.getZoom());
+      try {
+        map.setView(center, map.getZoom());
+      } catch (err) {
+        console.warn('RecenterMap error:', err);
+      }
     }
   }, [center, map]);
   return null;
-}
-
-function createColoredIcon(color, count) {
-  const size = count > 1 ? 32 : 28;
-  return L.divIcon({
-    className: '',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    html: `<div style="
-      width:${size}px;height:${size}px;border-radius:50%;
-      background:${color};color:white;
-      display:flex;align-items:center;justify-content:center;
-      font-size:${count > 1 ? '11px' : '0'};font-weight:800;
-      border:2px solid white;
-      box-shadow:0 2px 6px rgba(0,0,0,0.3);
-    ">${count > 1 ? count : ''}</div>`,
-  });
 }
 
 const RISK_COLORS = {
@@ -46,71 +34,101 @@ const RISK_COLORS = {
   unknown: '#D97706',
 };
 
-// OSM Overpass fetcher component
-function OSMOverlay({ enabled, onBoundsChange }) {
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function formatMonthYear(my) {
+  if (!my) return 'Recent';
+  const parts = String(my).split('-');
+  if (parts.length === 2) {
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    const year = parts[0];
+    if (monthIdx >= 0 && monthIdx < 12) return `${MONTH_NAMES[monthIdx]} ${year}`;
+  }
+  return my;
+}
+
+function formatSiteType(site) {
+  const st = site.siteType || site.site_type || 'sewer';
+  if (st === 'septic' || st === 'septic_tank') return 'Septic Tank';
+  if (st === 'ewaste' || st === 'ewaste_pit') return 'E-Waste Pit';
+  if (st === 'drain' || st === 'drain_canal') return 'Drain Canal';
+  return 'Sewer Manhole';
+}
+
+function createBadgeIcon(count) {
+  return L.divIcon({
+    className: '',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    html: `<div style="
+      width:20px;height:20px;border-radius:50%;
+      background:rgba(0,0,0,0.85);color:white;
+      display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-weight:800;border:1px solid white;
+      pointer-events:none;
+    ">${count}</div>`,
+  });
+}
+
+// OSM Overpass fetcher component using standard React state for markers
+function OSMOverlay({ enabled }) {
   const map = useMap();
-  const osmNodesRef = useRef([]);
+  const [osmNodes, setOsmNodes] = useState([]);
 
   useEffect(() => {
     if (!enabled) {
-      osmNodesRef.current = [];
-      map.eachLayer((layer) => {
-        if (layer.options?.isOsmNode) {
-          map.removeLayer(layer);
-        }
-      });
+      setOsmNodes([]);
       return;
     }
 
     const fetchOSM = async () => {
-      const bounds = map.getBounds();
-      const south = bounds.getSouth().toFixed(4);
-      const west = bounds.getWest().toFixed(4);
-      const north = bounds.getNorth().toFixed(4);
-      const east = bounds.getEast().toFixed(4);
-      const query = `https://overpass-api.de/api/interpreter?data=[out:json];node[man_made=manhole](${south},${west},${north},${east});out;`;
-
       try {
+        const bounds = map.getBounds();
+        const south = bounds.getSouth().toFixed(4);
+        const west = bounds.getWest().toFixed(4);
+        const north = bounds.getNorth().toFixed(4);
+        const east = bounds.getEast().toFixed(4);
+        const query = `https://overpass-api.de/api/interpreter?data=[out:json];node[man_made=manhole](${south},${west},${north},${east});out;`;
+
         const res = await fetch(query);
         const data = await res.json();
-        if (!data.elements) return;
-
-        // Remove old OSM layers
-        osmNodesRef.current.forEach((layer) => {
-          if (map.hasLayer(layer)) map.removeLayer(layer);
-        });
-        osmNodesRef.current = [];
-
-        data.elements.forEach((node) => {
-          const marker = L.circleMarker([node.lat, node.lon], {
-            radius: 6,
-            fillColor: '#9CA3AF',
-            fillOpacity: 0.7,
-            color: '#6B7280',
-            weight: 1,
-            isOsmNode: true,
-          });
-          marker.bindPopup(`<div class="text-xs">OSM Manhole</div>`);
-          marker.addTo(map);
-          osmNodesRef.current.push(marker);
-        });
-      } catch {}
+        if (data && data.elements) {
+          setOsmNodes(data.elements);
+        }
+      } catch (e) {
+        console.warn('OSM fetch failed:', e);
+      }
     };
 
     fetchOSM();
-    if (onBoundsChange) onBoundsChange(fetchOSM);
 
     map.on('moveend', fetchOSM);
     return () => {
       map.off('moveend', fetchOSM);
-      osmNodesRef.current.forEach((layer) => {
-        if (map.hasLayer(layer)) map.removeLayer(layer);
-      });
-      osmNodesRef.current = [];
     };
-  }, [enabled, map, onBoundsChange]);
+  }, [enabled, map]);
 
-  return null;
+  if (!enabled || !osmNodes.length) return null;
+
+  return (
+    <>
+      {osmNodes.map((node) => (
+        <CircleMarker
+          key={`osm-${node.id}`}
+          center={[node.lat, node.lon]}
+          radius={6}
+          fillColor="#9CA3AF"
+          fillOpacity={0.7}
+          color="#6B7280"
+          weight={1}
+        >
+          <Popup>
+            <div className="text-xs">OSM Manhole</div>
+          </Popup>
+        </CircleMarker>
+      ))}
+    </>
+  );
 }
 
 export default function DangerMapView({
@@ -120,8 +138,8 @@ export default function DangerMapView({
   onReportIncident,
 }) {
   const { worker } = useWorker();
-  const defaultCenter = center[0] && center[1] ? center : [17.3850, 78.4867];
-  const boundsChangeRef = useRef(null);
+  const lang = worker?.language || 'en';
+  const defaultCenter = (center && center[0] && center[1]) ? center : [17.3850, 78.4867];
 
   return (
     <div className="w-full h-80 rounded-2xl overflow-hidden border border-border-custom bg-surface relative z-10 shadow-lg">
@@ -132,42 +150,43 @@ export default function DangerMapView({
         zoomControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         <RecenterMap center={defaultCenter} />
 
-        {center[0] && center[1] && (
+        {center && center[0] && center[1] && (
           <Marker position={defaultCenter}>
             <Popup>
               <div className="text-xs font-semibold text-text-primary">
-                📍 {t('map.nearMe', worker.language)} (Your Location)
+                📍 {t('map.nearMe', lang)} (Your Location)
               </div>
             </Popup>
           </Marker>
         )}
 
-        {sites.map(site => {
-          const lat = site.latitude || site.lat || site.lat_rounded;
-          const lng = site.longitude || site.lng || site.lng_rounded;
-          if (!lat || !lng) return null;
+        {Array.isArray(sites) && sites.map((site, idx) => {
+          const lat = Number(site.latitude || site.lat || site.lat_rounded);
+          const lng = Number(site.longitude || site.lng || site.lng_rounded);
+          if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
 
-          const riskLevel = (site.risk_level || site.riskLevel || site.risk_tier || 'high').toLowerCase();
+          const riskLevel = String(site.risk_level || site.riskLevel || site.risk_tier || 'high').toLowerCase();
           const fillColor = RISK_COLORS[riskLevel] || RISK_COLORS.unknown;
           const incidentCount = site.incident_count_30d ?? site.incidentCount ?? site.incident_count ?? 1;
-          const icon = createColoredIcon(fillColor, incidentCount);
-          const siteTypeDisplay = site.siteType === 'septic' || site.site_type === 'septic_tank' ? 'Septic Tank'
-            : site.siteType === 'ewaste' || site.site_type === 'ewaste_pit' ? 'E-Waste Pit'
-            : site.siteType === 'drain' ? 'Drain Canal'
-            : 'Sewer Manhole';
-          const lastReportedText = site.last_reported || site.lastReported || site.month_year || 'Recent';
+          const siteTypeDisplay = formatSiteType(site);
+          const lastReportedText = formatMonthYear(site.month_year) || site.last_reported || site.lastReported || 'Recent';
           const gearProvided = site.gear_provided ?? site.gear_compliance ?? false;
 
           return (
-            <Marker
-              key={site.id || `${lat}-${lng}`}
-              position={[lat, lng]}
-              icon={icon}
+            <CircleMarker
+              key={site.id || `${lat}-${lng}-${idx}`}
+              center={[lat, lng]}
+              radius={14}
+              fillOpacity={0.85}
+              stroke={true}
+              weight={2}
+              color="white"
+              fillColor={fillColor}
             >
               <Popup>
                 <div className="p-2 space-y-2 text-text-primary text-xs min-w-[200px]">
@@ -185,11 +204,11 @@ export default function DangerMapView({
                       <span className="font-semibold text-text-primary">{lastReportedText}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted">Incidents (Last 30 Days):</span>
+                      <span className="text-muted">Incidents (30 Days):</span>
                       <span className="font-bold text-danger">{incidentCount}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted">Safety Gear Provided:</span>
+                      <span className="text-muted">Gear Provided:</span>
                       <span className={`font-semibold ${gearProvided ? 'text-safe' : 'text-danger'}`}>
                         {gearProvided ? 'Yes' : 'No'}
                       </span>
@@ -205,11 +224,27 @@ export default function DangerMapView({
                   )}
                 </div>
               </Popup>
-            </Marker>
+            </CircleMarker>
           );
         })}
 
-        <OSMOverlay enabled={osmEnabled} onBoundsChange={(fn) => { boundsChangeRef.current = fn; }} />
+        {/* Incident count badges for merged markers rendered safely via React-Leaflet Marker */}
+        {Array.isArray(sites) && sites.map((site, idx) => {
+          const lat = Number(site.latitude || site.lat || site.lat_rounded);
+          const lng = Number(site.longitude || site.lng || site.lng_rounded);
+          const count = Number(site.incident_count_30d ?? site.incidentCount ?? 1);
+          if (!lat || !lng || isNaN(lat) || isNaN(lng) || count <= 1) return null;
+          return (
+            <Marker
+              key={`badge-${site.id || idx}`}
+              position={[lat, lng]}
+              icon={createBadgeIcon(count)}
+              interactive={false}
+            />
+          );
+        })}
+
+        <OSMOverlay enabled={osmEnabled} />
       </MapContainer>
 
       {/* Legend */}

@@ -43,6 +43,35 @@ export default function PreEntryCheck() {
       });
       if (res && !res.offline) {
         setParsedVoiceFields(res);
+
+        // Programmatically apply non-null fields to form state immediately
+        const updates = {};
+        if (res.site_type) {
+          const map = { septic_tank: 'septic', sewer: 'sewer', ewaste_pit: 'ewaste', drain_canal: 'drain' };
+          updates.siteType = map[res.site_type] || res.site_type;
+        }
+        if (res.last_cleaned) {
+          updates.lastCleaned = res.last_cleaned;
+        }
+        if (res.recent_rain !== null && res.recent_rain !== undefined) {
+          updates.recentRain = res.recent_rain ? 'yes' : 'no';
+        }
+        if (res.depth_feet) {
+          if (res.depth_feet <= 3) updates.depth = '<3ft';
+          else if (res.depth_feet <= 6) updates.depth = '3-6ft';
+          else if (res.depth_feet <= 10) updates.depth = '6-10ft';
+          else updates.depth = '>10ft';
+        }
+        if ((res.has_ventilation !== null && res.has_ventilation !== undefined) || (res.has_gas_detector !== null && res.has_gas_detector !== undefined)) {
+          const current = [...(session.equipment || [])].filter(x => x !== 'none');
+          if (res.has_ventilation && !current.includes('blower')) current.push('blower');
+          if (res.has_gas_detector && !current.includes('gas_detector')) current.push('gas_detector');
+          updates.equipment = current.length > 0 ? current : ['none'];
+        }
+        if (Object.keys(updates).length > 0) {
+          updateSession(updates);
+        }
+
         // Speak confirmation
         const spokenFields = [];
         if (res.site_type) spokenFields.push(res.site_type.replace(/_/g, ' '));
@@ -61,7 +90,7 @@ export default function PreEntryCheck() {
     } catch (err) {
       console.warn('Voice parse failed:', err);
     }
-  }, [worker.language, speak]);
+  }, [worker.language, speak, session.equipment, updateSession]);
 
   // Apply parsed fields to form
   const applyParsedFields = useCallback(() => {

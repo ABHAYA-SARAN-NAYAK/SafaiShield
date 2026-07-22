@@ -62,21 +62,21 @@ def sync_jobs(jobs: list[dict]) -> tuple[int, int]:
 
 
 SEED_MAP_POINTS = [
-    {"lat_rounded": 17.38, "lng_rounded": 78.47, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 17.44, "lng_rounded": 78.38, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 13.08, "lng_rounded": 80.27, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 13.05, "lng_rounded": 80.25, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 19.07, "lng_rounded": 72.87, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 19.02, "lng_rounded": 72.85, "risk_tier": "MEDIUM", "gear_compliance": True, "site_type": "ewaste_pit", "month_year": "2026-07"},
-    {"lat_rounded": 28.66, "lng_rounded": 77.22, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 28.70, "lng_rounded": 77.10, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 12.97, "lng_rounded": 77.59, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 12.93, "lng_rounded": 77.62, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 18.52, "lng_rounded": 73.85, "risk_tier": "MEDIUM", "gear_compliance": True, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 22.57, "lng_rounded": 88.36, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 23.02, "lng_rounded": 72.57, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
-    {"lat_rounded": 26.85, "lng_rounded": 80.94, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07"},
-    {"lat_rounded": 25.61, "lng_rounded": 85.14, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07"},
+    {"lat_rounded": 17.38, "lng_rounded": 78.47, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 3},
+    {"lat_rounded": 17.44, "lng_rounded": 78.38, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 2},
+    {"lat_rounded": 13.08, "lng_rounded": 80.27, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 4},
+    {"lat_rounded": 13.05, "lng_rounded": 80.25, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 3},
+    {"lat_rounded": 19.07, "lng_rounded": 72.87, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 5},
+    {"lat_rounded": 19.02, "lng_rounded": 72.85, "risk_tier": "MEDIUM", "gear_compliance": True, "site_type": "ewaste_pit", "month_year": "2026-07", "incident_count_30d": 1},
+    {"lat_rounded": 28.66, "lng_rounded": 77.22, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 6},
+    {"lat_rounded": 28.70, "lng_rounded": 77.10, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 2},
+    {"lat_rounded": 12.97, "lng_rounded": 77.59, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 2},
+    {"lat_rounded": 12.93, "lng_rounded": 77.62, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 3},
+    {"lat_rounded": 18.52, "lng_rounded": 73.85, "risk_tier": "MEDIUM", "gear_compliance": True, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 1},
+    {"lat_rounded": 22.57, "lng_rounded": 88.36, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 4},
+    {"lat_rounded": 23.02, "lng_rounded": 72.57, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 2},
+    {"lat_rounded": 26.85, "lng_rounded": 80.94, "risk_tier": "MEDIUM", "gear_compliance": False, "site_type": "septic_tank", "month_year": "2026-07", "incident_count_30d": 1},
+    {"lat_rounded": 25.61, "lng_rounded": 85.14, "risk_tier": "HIGH", "gear_compliance": False, "site_type": "sewer", "month_year": "2026-07", "incident_count_30d": 3},
 ]
 
 
