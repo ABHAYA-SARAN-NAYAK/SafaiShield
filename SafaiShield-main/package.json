@@ -1,0 +1,12 @@
+{
+  "name": "safaishield-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SafaiShield - Sanitation Worker Safety PWA",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run dev",
+    "preview": "npm --prefix frontend run preview"
+  }
+}
